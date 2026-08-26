@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Taller Esquivel Fix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { margin: 0; size: auto; }
+            input, textarea { border: none !important; resize: none; }
+            input::placeholder, textarea::placeholder { color: transparent; }
+            button { display: none !important; }
+        }
+        
+        .input-line {
+            border-bottom: 1px solid #d1d5db;
+            padding: 4px 0;
+            outline: none;
+            width: 100%;
+            background: transparent;
+        }
+        .input-line:focus { border-bottom: 2px solid #EAB308; }
+        .card-anim { transition: all 0.3s ease; }
+        .card-anim:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const IconFileText = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>;
+        const IconSmartphone = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>;
+        const IconLayoutDashboard = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>;
+        const IconPrinter = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>;
+        const IconPlus = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+        const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2-2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>;
+        const IconInstagram = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>;
+        const IconTikTok = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z"/></svg>;
+        const IconSend = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>;
+        const IconSave = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('recepcion');
+            const [photos, setPhotos] = useState([]);
+            const [jobs, setJobs] = useState([]); 
+            
+            const initialState = {
+                folio: '001',
+                fecha: new Date().toISOString().split('T')[0],
+                cliente: '',
+                telefono: '',
+                modelo: '',
+                imei: '',
+                falla: '',
+                condicion: '',
+                servicio: '',
+                costoPieza: '',
+                manoObra: '',
+                total: '',
+                anticipo: '',
+                resta: '',
+                diagnostico: '',
+                reparacionRealizada: '',
+                checkAudio: false,
+                checkCarga: false,
+                checkSenal: false,
+                checkCamaras: false,
+                checkWifi: false,
+                checkFaceId: false,
+                passcode: '',
+                status: 'Pendiente'
+            };
+
+            const [data, setData] = useState(initialState);
+
+            useEffect(() => {
+                fetch("http://127.0.0.1:8000/ordenes")
+                    .then(response => response.json())
+                    .then(data => {
+                        const trabajosDeBaseDeDatos = data.map(orden => ({
+                            id: orden.folio,
+                            folio: orden.folio.toString().padStart(3, '0'),
+                            fecha: orden.fecha_ingreso,
+                            cliente: orden.cliente,
+                            telefono: orden.telefono || '',
+                            modelo: orden.modelo,
+                            imei: orden.imei || '',
+                            passcode: orden.passcode || '',
+                            falla: orden.falla_reportada || '',
+                            condicion: orden.condicion_estetica || '',
+                            diagnostico: orden.diagnostico || '',
+                            reparacionRealizada: orden.solucion || '',
+                            total: orden.costo_total || '',
+                            anticipo: orden.anticipo || '',
+                            resta: (orden.costo_total - orden.anticipo) || '',
+                            status: orden.estado || 'Pendiente',
+                            checkAudio: false, checkCarga: false, checkSenal: false, checkCamaras: false
+                        }));
+                        setJobs(trabajosDeBaseDeDatos);
+                    })
+                    .catch(error => {
+                        console.error("Error de conexión a BD:", error);
+                    });
+            }, []);
+
+            const handleChange = (e) => {
+                const { name, value, type, checked } = e.target;
+                setData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+            };
+
+            const handleImageUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setPhotos(prev => [...prev, reader.result]);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const removePhoto = (index) => {
+                setPhotos(prev => prev.filter((_, i) => i !== index));
+            };
+
+            const handlePrint = () => {
+                window.print();
+            };
+
+            const saveToBoard = () => {
+                if (!data.cliente || !data.modelo) {
+                    alert("Por favor ingresa al menos Cliente y Modelo");
+                    return;
+                }
+
+                fetch("http://127.0.0.1:8000/ordenes", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        alert("Error de guardado en BD: " + result.error);
+                    } else {
+                        alert("Registro exitoso en MySQL");
+                        
+                        fetch("http://127.0.0.1:8000/ordenes")
+                            .then(res => res.json())
+                            .then(dbData => {
+                                const trabajosDeBaseDeDatos = dbData.map(orden => ({
+                                    id: orden.folio,
+                                    folio: orden.folio.toString().padStart(3, '0'),
+                                    fecha: orden.fecha_ingreso,
+                                    cliente: orden.cliente,
+                                    telefono: orden.telefono || '',
+                                    modelo: orden.modelo,
+                                    imei: orden.imei || '',
+                                    passcode: orden.passcode || '',
+                                    falla: orden.falla_reportada || '',
+                                    condicion: orden.condicion_estetica || '',
+                                    diagnostico: orden.diagnostico || '',
+                                    reparacionRealizada: orden.solucion || '',
+                                    total: orden.costo_total || '',
+                                    anticipo: orden.anticipo || '',
+                                    resta: (orden.costo_total - orden.anticipo) || '',
+                                    status: orden.estado || 'Pendiente',
+                                    checkAudio: false, checkCarga: false, checkSenal: false, checkCamaras: false
+                                }));
+                                setJobs(trabajosDeBaseDeDatos);
+                                setActiveTab('tablero'); 
+                            });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error del servidor:", error);
+                });
+            };
+
+            const updateJobStatus = (id, newStatus) => {
+                const updatedJobs = jobs.map(job => 
+                    job.id === id ? { ...job, status: newStatus } : job
+                );
+                setJobs(updatedJobs);
+            };
+
+            const deleteJob = (id) => {
+                if(confirm('¿Confirmar eliminación temporal del registro en tablero?')) {
+                    const updatedJobs = jobs.filter(job => job.id !== id);
+                    setJobs(updatedJobs);
+                }
+            };
+
+            const loadJobToForm = (job) => {
+                setData(job);
+                setPhotos(job.photos || []);
+                setActiveTab('recepcion');
+                window.scrollTo(0,0);
+            };
+
+            const handleWhatsApp = (currentData = data) => {
+                let message = "";
+                let phone = currentData.telefono.replace(/[^0-9]/g, ''); 
+                const whatsappUrl = phone.length >= 10 ? `https://wa.me/52${phone}?text=` : `https://wa.me/?text=`;
+
+                if (activeTab === 'recepcion' || activeTab === 'tablero') {
+                    message = `Hola ${currentData.cliente}, aquí tienes tu *Orden de Servicio* de @esqu1vel__.fix %0A` +
+                              `📅 Fecha: ${currentData.fecha} | Folio: ${currentData.folio} %0A` +
+                              `📱 Equipo: ${currentData.modelo} %0A` +
+                              `⚠️ Falla: ${currentData.falla} %0A` +
+                              `💰 Total: $${currentData.total} (Anticipo: $${currentData.anticipo}) %0A` +
+                              `Estado: *${currentData.status}*`;
+                } else if (activeTab === 'diagnostico') {
+                    message = `Hola ${currentData.cliente}, reporte de diagnóstico listo: %0A` +
+                              `📱 Equipo: ${currentData.modelo} %0A` +
+                              `🔍 Diagnóstico: ${currentData.diagnostico} %0A` +
+                              `🛠️ Solución: ${currentData.reparacionRealizada} %0A` +
+                              `💰 Costo Revisión: $250 (Abonable) %0A` +
+                              `¿Autorizas?`;
+                }
+                window.open(whatsappUrl + message, '_blank');
+            };
+
+            const PrintHeader = ({ title }) => (
+                <div className="mb-6 border-b-4 border-black pb-4 flex justify-between items-end">
+                    <div>
+                        <h1 className="text-4xl font-extrabold tracking-tighter">@ESQUIVEL<span className="text-yellow-500">.</span>__<span className="text-yellow-500">FIX</span></h1>
+                        <p className="text-sm font-bold mt-1 text-gray-700">ALAN MIRANDA ESQUIVEL</p>
+                        <p className="text-xs text-gray-500 uppercase tracking-widest">Técnico en Reparación de Celulares</p>
+                    </div>
+                    <div className="text-right">
+                        <div className="bg-yellow-400 text-black px-3 py-1 font-bold text-sm inline-block mb-1">{title}</div>
+                        <div className="flex flex-col items-end">
+                            <div className="flex items-center gap-1">
+                                <span className="text-sm font-bold">FOLIO:</span>
+                                <input name="folio" value={data.folio} onChange={handleChange} className="font-mono text-red-600 font-bold w-16 text-right outline-none bg-transparent" />
+                            </div>
+                            <input type="date" name="fecha" value={data.fecha} onChange={handleChange} className="text-xs text-gray-500 text-right outline-none bg-transparent" />
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const PrintFooter = () => (
+                <div className="mt-8 pt-4 border-t border-gray-300 text-center text-xs text-gray-500">
+                    <div className="flex justify-center items-center gap-6 mb-2 font-bold text-black">
+                        <span className="flex items-center gap-1"><IconInstagram /> @esqu1vel.__fix</span>
+                        <span className="flex items-center gap-1"><IconTikTok /> @esqu1vel.__fix</span>
+                    </div>
+                    <p>Tulyehualco, CDMX | WhatsApp: 56 3474 7731</p>
+                </div>
+            );
+
+            const BoardView = () => (
+                <div className="animate-fade-in p-4">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold flex items-center gap-2">
+                            <IconLayoutDashboard /> Tablero de Control
+                        </h2>
+                    </div>
+                    
+                    {jobs.length === 0 ? (
+                        <div className="text-center py-10 text-gray-400 bg-gray-50 rounded-lg border-2 border-dashed">
+                            <p>No hay trabajos activos en la Base de Datos.</p>
+                            <p className="text-sm">Ve a "Recepción" y agrega uno nuevo.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {jobs.map(job => (
+                                <div key={job.id} className="bg-white p-4 rounded-lg shadow border border-gray-200 card-anim relative">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className="bg-black text-yellow-400 text-xs font-bold px-2 py-1 rounded">#{job.folio}</span>
+                                        <span className="text-xs text-gray-400">{job.fecha}</span>
+                                    </div>
+                                    <h3 className="font-bold text-lg">{job.modelo}</h3>
+                                    <p className="text-sm text-gray-600 mb-1">{job.cliente}</p>
+                                    <p className="text-xs text-gray-500 mb-3 truncate">{job.falla}</p>
+                                    
+                                    <div className="mb-4">
+                                        <label className="text-xs font-bold text-gray-400 uppercase">Estado:</label>
+                                        <select 
+                                            value={job.status} 
+                                            onChange={(e) => updateJobStatus(job.id, e.target.value)}
+                                            className={`w-full mt-1 p-2 rounded text-sm font-bold border ${
+                                                job.status === 'Entregado' ? 'bg-green-100 text-green-800 border-green-200' :
+                                                job.status === 'Listo' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                                                'bg-yellow-50 text-yellow-800 border-yellow-200'
+                                            }`}
+                                        >
+                                            <option value="Pendiente">Pendiente</option>
+                                            <option value="En Revisión">En Revisión</option>
+                                            <option value="Esperando Pieza">Esperando Pieza</option>
+                                            <option value="Listo">✅ Listo para Entrega</option>
+                                            <option value="Entregado">🚀 Entregado</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="flex gap-2 mt-2 pt-2 border-t border-gray-100">
+                                        <button onClick={() => loadJobToForm(job)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded text-xs font-bold flex items-center justify-center gap-1">
+                                            <IconFileText size={14}/> Ver/Editar
+                                        </button>
+                                        <button onClick={() => { loadJobToForm(job); setTimeout(() => handleWhatsApp(job), 100); }} className="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded">
+                                            <IconSend size={16}/>
+                                        </button>
+                                        <button onClick={() => deleteJob(job.id)} className="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded">
+                                            <IconTrash size={16}/>
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen pb-24 bg-gray-100">
+                    <div className="no-print fixed bottom-0 left-0 w-full bg-black text-white p-2 z-50 flex justify-around items-center shadow-lg safe-area-pb">
+                        <button onClick={() => setActiveTab('recepcion')} className={`flex flex-col items-center p-2 rounded-lg ${activeTab === 'recepcion' ? 'text-yellow-400' : 'text-gray-400'}`}>
+                            <IconFileText />
+                            <span className="text-[10px] font-bold mt-1">RECEPCIÓN</span>
+                        </button>
+                        <button onClick={() => setActiveTab('diagnostico')} className={`flex flex-col items-center p-2 rounded-lg ${activeTab === 'diagnostico' ? 'text-yellow-400' : 'text-gray-400'}`}>
+                            <IconSmartphone />
+                            <span className="text-[10px] font-bold mt-1">DIAGNÓSTICO</span>
+                        </button>
+                        <button onClick={() => setActiveTab('tablero')} className={`flex flex-col items-center p-2 rounded-lg ${activeTab === 'tablero' ? 'text-yellow-400' : 'text-gray-400'}`}>
+                            <IconLayoutDashboard />
+                            <span className="text-[10px] font-bold mt-1">TABLERO</span>
+                        </button>
+                        
+                        <div className="flex gap-2 -mt-12">
+                             {activeTab === 'recepcion' && (
+                                <button onClick={saveToBoard} className="bg-blue-600 text-white p-3 rounded-full shadow-lg border-4 border-gray-100 hover:scale-110 transition flex items-center justify-center" title="Guardar en Tablero">
+                                    <IconSave />
+                                </button>
+                            )}
+                            <button onClick={() => handleWhatsApp()} className="bg-green-500 text-white p-3 rounded-full shadow-lg border-4 border-gray-100 hover:scale-110 transition flex items-center justify-center">
+                                <IconSend />
+                            </button>
+                            <button onClick={handlePrint} className="bg-yellow-400 text-black p-3 rounded-full shadow-lg border-4 border-gray-100 hover:scale-110 transition">
+                                <IconPrinter />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className={`mx-auto bg-white min-h-screen shadow-xl md:my-8 print:shadow-none print:my-0 ${activeTab === 'tablero' ? 'max-w-4xl bg-transparent shadow-none' : 'max-w-[210mm] p-[10mm]'}`}>
+                        
+                        {activeTab === 'tablero' && <BoardView />}
+
+                        {activeTab === 'recepcion' && (
+                            <div className="animate-fade-in">
+                                <PrintHeader title="ORDEN DE SERVICIO" />
+                                
+                                <div className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                                    <h3 className="font-bold text-sm text-gray-400 uppercase mb-3 border-b pb-1">Información del Cliente</h3>
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <label className="text-xs text-gray-500">Nombre</label>
+                                            <input name="cliente" value={data.cliente} onChange={handleChange} className="input-line font-bold" placeholder="Escribe nombre..." />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-500">Teléfono</label>
+                                            <input name="telefono" value={data.telefono} onChange={handleChange} className="input-line" placeholder="55..." />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-500">Modelo / Color</label>
+                                            <input name="modelo" value={data.modelo} onChange={handleChange} className="input-line" placeholder="Ej. iPhone 11 Rojo" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-500">IMEI / Serie</label>
+                                            <input name="imei" value={data.imei} onChange={handleChange} className="input-line font-mono" placeholder="*#06#" />
+                                        </div>
+                                        <div className="col-span-2">
+                                            <label className="text-xs text-gray-500">Contraseña / Patrón</label>
+                                            <input name="passcode" value={data.passcode} onChange={handleChange} className="input-line" placeholder="Para pruebas..." />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mb-6">
+                                    <h3 className="font-bold text-sm text-gray-800 uppercase mb-2 flex items-center gap-2">
+                                        <span className="text-yellow-500 text-lg">⚠</span> Falla Reportada & Estado
+                                    </h3>
+                                    <textarea name="falla" value={data.falla} onChange={handleChange} rows="3" className="w-full bg-yellow-50 p-3 rounded border border-yellow-200 text-sm" placeholder="¿Qué le falla al equipo?"></textarea>
+                                    
+                                    <div className="mt-3 grid grid-cols-2 gap-4">
+                                        <div className="text-sm">
+                                            <label className="text-xs font-bold text-gray-500">Condición Estética (Check-in)</label>
+                                            <textarea name="condicion" value={data.condicion} onChange={handleChange} rows="2" className="w-full border-b border-gray-300 text-sm mt-1 outline-none" placeholder="Ej. Pantalla estrellada, golpe en esquina, sin botones..."></textarea>
+                                        </div>
+                                        <div className="bg-gray-100 p-2 rounded">
+                                            <p className="text-[10px] font-bold text-center mb-2">CHECKLIST RÁPIDO</p>
+                                            <div className="grid grid-cols-2 gap-2 text-xs">
+                                                <label className="flex items-center gap-1"><input type="checkbox" name="checkCarga" checked={data.checkCarga} onChange={handleChange} /> Carga</label>
+                                                <label className="flex items-center gap-1"><input type="checkbox" name="checkAudio" checked={data.checkAudio} onChange={handleChange} /> Audio</label>
+                                                <label className="flex items-center gap-1"><input type="checkbox" name="checkSenal" checked={data.checkSenal} onChange={handleChange} /> Señal</label>
+                                                <label className="flex items-center gap-1"><input type="checkbox" name="checkCamaras" checked={data.checkCamaras} onChange={handleChange} /> Cam.</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mb-8 border border-gray-300 rounded overflow-hidden">
+                                    <div className="bg-black text-white px-4 py-2 text-xs font-bold uppercase flex justify-between">
+                                        <span>Servicio a Realizar</span>
+                                        <span>Costos</span>
+                                    </div>
+                                    <div className="p-4 grid grid-cols-3 gap-6 text-sm">
+                                        <div className="col-span-2 space-y-3">
+                                            <input name="servicio" value={data.servicio} onChange={handleChange} className="input-line font-bold" placeholder="Descripción del servicio (Ej. Cambio de Display OEM)" />
+                                            <div className="text-xs text-gray-500 mt-2">
+                                                * Incluye limpieza interna y sellos de ser necesario.
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between">
+                                                <span>Total:</span>
+                                                <input name="total" value={data.total} onChange={handleChange} className="w-20 text-right font-bold border-b border-gray-300 outline-none" placeholder="$0.00" />
+                                            </div>
+                                            <div className="flex justify-between text-green-600">
+                                                <span>Anticipo:</span>
+                                                <input name="anticipo" value={data.anticipo} onChange={handleChange} className="w-20 text-right font-bold border-b border-gray-300 outline-none" placeholder="$0.00" />
+                                            </div>
+                                            <div className="flex justify-between text-red-600 border-t border-gray-200 pt-1">
+                                                <span>Resta:</span>
+                                                <input name="resta" value={data.resta} onChange={handleChange} className="w-20 text-right font-bold border-b border-gray-300 outline-none" placeholder="$0.00" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="text-[10px] text-gray-500 mb-8 space-y-1">
+                                    <p className="font-bold text-black">TÉRMINOS Y CONDICIONES:</p>
+                                    <ul className="list-disc pl-4 space-y-1">
+                                        <li>Garantía de 90 días en mano de obra y refacción por defecto de fábrica.</li>
+                                        <li>La garantía se invalida por: Golpes, Humedad, Display roto/rayado o sellos violados.</li>
+                                        <li>Equipos mojados NO tienen garantía de encendido posterior a la limpieza.</li>
+                                        <li>Pasados 30 días de la notificación de entrega, el equipo pasará a reciclaje sin responsabilidad para el taller.</li>
+                                    </ul>
+                                </div>
+
+                                <div className="flex justify-between items-end mt-10 pt-4 px-8">
+                                    <div className="text-center">
+                                        <div className="w-40 border-b border-gray-400 mb-2"></div>
+                                        <p className="text-xs font-bold">Firma Técnico</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="w-40 border-b border-gray-400 mb-2"></div>
+                                        <p className="text-xs font-bold">Acepto Términos (Cliente)</p>
+                                    </div>
+                                </div>
+                                <PrintFooter />
+                            </div>
+                        )}
+
+                        {activeTab === 'diagnostico' && (
+                            <div className="animate-fade-in">
+                                <PrintHeader title="DIAGNÓSTICO TÉCNICO" />
+                                
+                                <div className="flex justify-between bg-gray-100 p-3 rounded mb-6 text-sm">
+                                    <p><strong>Equipo:</strong> {data.modelo}</p>
+                                    <p><strong>IMEI:</strong> {data.imei}</p>
+                                    <p><strong>Cliente:</strong> {data.cliente}</p>
+                                </div>
+
+                                <div className="mb-6">
+                                    <div className="flex justify-between items-center mb-2 no-print">
+                                        <h3 className="font-bold text-sm uppercase">Evidencia Fotográfica</h3>
+                                        <label className="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded cursor-pointer flex items-center gap-1 text-xs font-bold">
+                                            <IconPlus /> Agregar Foto
+                                            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                                        </label>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {photos.map((src, index) => (
+                                            <div key={index} className="relative aspect-square bg-gray-200 rounded overflow-hidden border border-gray-300">
+                                                <img src={src} className="w-full h-full object-cover" />
+                                                <button onClick={() => removePhoto(index)} className="no-print absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-70 hover:opacity-100">
+                                                    <IconTrash />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {photos.length === 0 && (
+                                            <div className="col-span-3 h-24 flex items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded text-gray-400 text-xs">
+                                                Sin fotos adjuntas (Añadir para reporte)
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div>
+                                        <h3 className="font-bold text-sm uppercase mb-2 flex items-center gap-2">
+                                            <span className="text-yellow-500 text-lg">🔍</span> Hallazgos / Revisión Interna
+                                        </h3>
+                                        <textarea name="diagnostico" value={data.diagnostico} onChange={handleChange} rows="6" className="w-full p-4 bg-white border border-gray-300 rounded shadow-sm text-sm leading-relaxed" placeholder="Describe aquí la falla técnica a detalle, mediciones, componentes dañados..."></textarea>
+                                    </div>
+
+                                    <div>
+                                        <h3 className="font-bold text-sm uppercase mb-2 flex items-center gap-2">
+                                            <span className="text-yellow-500 text-lg">🛠️</span> Solución Requerida
+                                        </h3>
+                                        <textarea name="reparacionRealizada" value={data.reparacionRealizada} onChange={handleChange} rows="3" className="w-full p-4 bg-green-50 border border-green-200 rounded text-sm" placeholder="¿Qué se necesita hacer para reparar el equipo?"></textarea>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8 flex justify-end">
+                                    <div className="text-right">
+                                        <p className="text-xs font-bold text-gray-500 uppercase">Costo Revisión</p>
+                                        <div className="text-3xl font-extrabold text-black">$250.00 <span className="text-sm font-normal text-gray-400">MXN</span></div>
+                                        <p className="text-[10px] text-green-600 bg-green-100 px-2 rounded inline-block mt-1">ABONABLE A REPARACIÓN</p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-12 border-t pt-4 text-center">
+                                    <div className="w-48 border-b border-gray-400 mx-auto mb-2"></div>
+                                    <p className="text-xs font-bold text-gray-500">Alan Miranda Esquivel</p>
+                                    <p className="text-[10px] text-gray-400">Técnico Especialista</p>
+                                </div>
+                                <PrintFooter />
+                            </div>
+                        )}
+
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+USE esquivel_fix;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+TRUNCATE TABLE Ordenes_Servicio;
+TRUNCATE TABLE Equipos;
+TRUNCATE TABLE Clientes;
+
+SET FOREIGN_KEY_CHECKS = 1;
