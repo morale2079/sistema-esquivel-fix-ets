@@ -10,7 +10,9 @@ CREATE TABLE Clientes (
 CREATE TABLE Equipos (
     id_equipo INT AUTO_INCREMENT PRIMARY KEY,
     id_cliente INT NOT NULL,
+    marca VARCHAR(50) NOT NULL,
     modelo VARCHAR(100) NOT NULL,
+    color VARCHAR(50) NOT NULL,
     imei VARCHAR(50),
     passcode VARCHAR(50),
     FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente)
