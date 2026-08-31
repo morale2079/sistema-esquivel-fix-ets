@@ -1,7 +1,5 @@
 # Diccionario de Datos - Esquivel Fix
 
-Este documento describe la estructura de la base de datos `esquivel_fix`.
-
 ## Tabla: `Clientes`
 Almacena la información de contacto básica de los clientes del taller.
 
@@ -29,7 +27,7 @@ Almacena la información de los dispositivos móviles que los clientes dejan par
 ---
 
 ## Tabla: `Ordenes_Servicio`
-Almacena la información transaccional y técnica del servicio prestado a un equipo.
+Almacena la información del servicio prestado a un equipo.
 
 | Nombre de Columna | Tipo de Dato | Longitud | Restricciones | Descripción |
 | :--- | :--- | :--- | :--- | :--- |
