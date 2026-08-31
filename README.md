@@ -1,32 +1,22 @@
-# Sistema Taller - Esquivel Fix
-
-Sistema web desarrollado para la gestión, control de órdenes de servicio, recepción de equipos y diagnóstico técnico en un taller de reparación de telefonía móvil.
+# Sistema Taller - esqu1vel__.fix
 
 Autor
 Alan Miranda Esquivel
 
 ---
 
- Tecnologías Utilizadas
-Backend: Python, FastAPI, Uvicorn, Pydantic, MySQL Connector.
-Base de Datos: MySQL (Arquitectura relacional con normalización de tablas).
-Frontend: HTML5, Tailwind CSS, React (implementado vía Babel Standalone).
+1.-Planteamiento del problema
+En el taller de reparación de celulares "esqu1vel__.fix", el registro de los equipos y las órdenes de servicio se llevaba de forma manual mediante notas de papel. Esto genera varios problemas en la administración pues es muy fácil que se traspapele la información o el número de un cliente, se pierde tiempo buscando el estado de una reparación específica y no hay un control claro de los anticipos o saldos pendientes. Además, la comunicación con el cliente para mandarle una cotización o avisarle que su equipo está listo es básicamente nula al no tener buen control de sus datos. La falta de una herramienta digital provoca desorganización interna y da una imagen menos actual al momento de entregar notas de servicio.
 
 ---
 
-Estructura del Repositorio
-* `01_creacion.sql`: Script DDL para la creación del esquema de base de datos y sus tablas relacionales (`Clientes`, `Equipos`, `Ordenes_Servicio`).
-* `02_rollbacks_creacion.sql`: Script de seguridad para la eliminación limpia de las tablas y la base de datos.
-* `03_poblado.sql`: Script DML con datos de prueba para pruebas iniciales del sistema.
-* `04_rollbacks_poblado.sql`: Script para el vaciado seguro de los registros manteniendo la estructura intacta.
-* `main.py`: Servidor de la API REST construido con FastAPI, encargado de manejar las operaciones de lectura y escritura con la base de datos.
-* `index.html`: Interfaz gráfica interactiva en React con un tablero de control dinámico y generación de órdenes imprimibles.
+2.- Onjetivo general
+Desarrollar un sistema web fácil de usar para el taller "esqu1vel__.fix" que permita registrar, controlar y dar seguimiento a las órdenes de servicio técnico, desde que el teléfono ingresa al local hasta que se entrega reparado.
 
 ---
 
-Requisitos Previos
-1. Python 3.8 o superior instalado en el equipo.
-2. Servidor MySQL local activo (por ejemplo, mediante MySQL Workbench o XAMPP).
-3. Instalación de las librerías necesarias de Python ejecutando el siguiente comando en tu terminal:
-   ```bash
-   pip install fastapi uvicorn mysql-connector-python pydantic
+3.- Objetivos especificos
+Diseñar e implementar una base de datos que almacene de forma estructurada la información de clientes, dispositivos (marca, modelo, color) y detalles de la reparación.
+Desarrollar una interfaz gráfica web (Frontend) fácil de usar, que permita al técnico registrar los datos de ingreso y visualizar un tablero de control con los trabajos activos.
+Estandarizar el formato de recepción y diagnóstico, generando comprobantes digitales que mejoren la imagen profesional del taller.
+Agilizar la comunicación con el cliente.
