@@ -6,7 +6,9 @@ import mysql.connector
 class OrdenNueva(BaseModel):
     cliente: str
     telefono: str
+    marca: str
     modelo: str
+    color: str
     imei: str
     passcode: str
     fecha: str
@@ -47,24 +49,24 @@ def inicio():
 @app.get("/ordenes", tags=["Órdenes de Servicio"])
 def obtener_ordenes():
     conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True) 
-    
+    cursor = conn.cursor(dictionary=True)
+
     consulta = """
-    SELECT 
+    SELECT
         o.folio, o.fecha_ingreso, o.falla_reportada, o.condicion_estetica, o.diagnostico, o.solucion, o.costo_total, o.anticipo, o.estado,
-        e.modelo, e.imei, e.passcode, 
+        e.marca, e.modelo, e.color, e.imei, e.passcode,
         c.nombre as cliente, c.telefono
     FROM Ordenes_Servicio o
     JOIN Equipos e ON o.id_equipo = e.id_equipo
     JOIN Clientes c ON e.id_cliente = c.id_cliente
     """
-    
+
     cursor.execute(consulta)
     ordenes = cursor.fetchall()
-    
+
     cursor.close()
     conn.close()
-    
+
     return ordenes
 
 @app.post("/ordenes", tags=["Órdenes de Servicio"])
@@ -77,10 +79,10 @@ def guardar_orden(orden: OrdenNueva):
         anticipo = float(orden.anticipo) if orden.anticipo else 0.0
 
         cursor.execute("INSERT INTO Clientes (nombre, telefono) VALUES (%s, %s)", (orden.cliente, orden.telefono))
-        id_cliente = cursor.lastrowid 
+        id_cliente = cursor.lastrowid
 
-        cursor.execute("INSERT INTO Equipos (id_cliente, modelo, imei, passcode) VALUES (%s, %s, %s, %s)",
-                       (id_cliente, orden.modelo, orden.imei, orden.passcode))
+        cursor.execute("INSERT INTO Equipos (id_cliente, marca, modelo, color, imei, passcode) VALUES (%s, %s, %s, %s, %s, %s)",
+                       (id_cliente, orden.marca, orden.modelo, orden.color, orden.imei, orden.passcode))
         id_equipo = cursor.lastrowid
 
         cursor.execute("""
@@ -89,11 +91,11 @@ def guardar_orden(orden: OrdenNueva):
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (id_equipo, orden.fecha, orden.falla, orden.condicion, orden.diagnostico, orden.reparacionRealizada, costo, anticipo, orden.status))
 
-        conn.commit() 
+        conn.commit()
         return {"mensaje": "¡Orden guardada con éxito en la base de datos!"}
-    
+
     except Exception as e:
-        conn.rollback() 
+        conn.rollback()
         return {"error": str(e)}
     finally:
         cursor.close()

@@ -8,11 +8,11 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        
+
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
@@ -22,7 +22,7 @@
             input::placeholder, textarea::placeholder { color: transparent; }
             button { display: none !important; }
         }
-        
+
         .input-line {
             border-bottom: 1px solid #d1d5db;
             padding: 4px 0;
@@ -55,14 +55,26 @@
         const App = () => {
             const [activeTab, setActiveTab] = useState('recepcion');
             const [photos, setPhotos] = useState([]);
-            const [jobs, setJobs] = useState([]); 
-            
+            const [jobs, setJobs] = useState([]);
+
+            const modelosPorMarca = {
+                'Apple': ['iPhone 11', 'iPhone 11 Pro', 'iPhone 11 Pro Max', 'iPhone 12', 'iPhone 12 Pro', 'iPhone 12 Pro Max', 'iPhone 13', 'iPhone 13 Pro', 'iPhone 13 Pro Max', 'iPhone 14', 'iPhone 14 Pro', 'iPhone 14 Pro Max', 'iPhone 15', 'iPhone 15 Pro', 'iPhone 15 Pro Max', 'Otro'],
+                'Samsung': ['Galaxy S20', 'Galaxy S21', 'Galaxy S22', 'Galaxy S23', 'Galaxy A14', 'Galaxy A34', 'Galaxy A54', 'Otro'],
+                'Motorola': ['Moto G52', 'Moto G72', 'Moto Edge 30', 'Moto Edge 40', 'Otro'],
+                'Xiaomi': ['Redmi Note 11', 'Redmi Note 12', 'Poco X5', 'Poco F5', 'Xiaomi 13', 'Otro'],
+                'Honor': ['Honor X8a', 'Honor Magic5 Lite', 'Honor 90', 'Otro'],
+                'Huawei': ['Nova Y70', 'Nova 10', 'Nova 11', 'P60 Pro', 'Otro'],
+                'Otro': ['Otro']
+            };
+
             const initialState = {
                 folio: '001',
                 fecha: new Date().toISOString().split('T')[0],
                 cliente: '',
                 telefono: '',
+                marca: '',
                 modelo: '',
+                color: '',
                 imei: '',
                 falla: '',
                 condicion: '',
@@ -96,7 +108,9 @@
                             fecha: orden.fecha_ingreso,
                             cliente: orden.cliente,
                             telefono: orden.telefono || '',
+                            marca: orden.marca,
                             modelo: orden.modelo,
+                            color: orden.color,
                             imei: orden.imei || '',
                             passcode: orden.passcode || '',
                             falla: orden.falla_reportada || '',
@@ -141,8 +155,8 @@
             };
 
             const saveToBoard = () => {
-                if (!data.cliente || !data.modelo) {
-                    alert("Por favor ingresa al menos Cliente y Modelo");
+                if (!data.cliente || !data.marca || !data.modelo) {
+                    alert("Por favor ingresa al menos Cliente, Marca y Modelo");
                     return;
                 }
 
@@ -157,7 +171,7 @@
                         alert("Error de guardado en BD: " + result.error);
                     } else {
                         alert("Registro exitoso en MySQL");
-                        
+
                         fetch("http://127.0.0.1:8000/ordenes")
                             .then(res => res.json())
                             .then(dbData => {
@@ -167,7 +181,9 @@
                                     fecha: orden.fecha_ingreso,
                                     cliente: orden.cliente,
                                     telefono: orden.telefono || '',
+                                    marca: orden.marca,
                                     modelo: orden.modelo,
+                                    color: orden.color,
                                     imei: orden.imei || '',
                                     passcode: orden.passcode || '',
                                     falla: orden.falla_reportada || '',
@@ -181,7 +197,7 @@
                                     checkAudio: false, checkCarga: false, checkSenal: false, checkCamaras: false
                                 }));
                                 setJobs(trabajosDeBaseDeDatos);
-                                setActiveTab('tablero'); 
+                                setActiveTab('tablero');
                             });
                     }
                 })
@@ -191,7 +207,7 @@
             };
 
             const updateJobStatus = (id, newStatus) => {
-                const updatedJobs = jobs.map(job => 
+                const updatedJobs = jobs.map(job =>
                     job.id === id ? { ...job, status: newStatus } : job
                 );
                 setJobs(updatedJobs);
@@ -213,19 +229,19 @@
 
             const handleWhatsApp = (currentData = data) => {
                 let message = "";
-                let phone = currentData.telefono.replace(/[^0-9]/g, ''); 
+                let phone = currentData.telefono.replace(/[^0-9]/g, '');
                 const whatsappUrl = phone.length >= 10 ? `https://wa.me/52${phone}?text=` : `https://wa.me/?text=`;
 
                 if (activeTab === 'recepcion' || activeTab === 'tablero') {
                     message = `Hola ${currentData.cliente}, aquí tienes tu *Orden de Servicio* de @esqu1vel__.fix %0A` +
                               `📅 Fecha: ${currentData.fecha} | Folio: ${currentData.folio} %0A` +
-                              `📱 Equipo: ${currentData.modelo} %0A` +
+                              `📱 Equipo: ${currentData.marca} ${currentData.modelo} ${currentData.color} %0A` +
                               `⚠️ Falla: ${currentData.falla} %0A` +
                               `💰 Total: $${currentData.total} (Anticipo: $${currentData.anticipo}) %0A` +
                               `Estado: *${currentData.status}*`;
                 } else if (activeTab === 'diagnostico') {
                     message = `Hola ${currentData.cliente}, reporte de diagnóstico listo: %0A` +
-                              `📱 Equipo: ${currentData.modelo} %0A` +
+                              `📱 Equipo: ${currentData.marca} ${currentData.modelo} ${currentData.color} %0A` +
                               `🔍 Diagnóstico: ${currentData.diagnostico} %0A` +
                               `🛠️ Solución: ${currentData.reparacionRealizada} %0A` +
                               `💰 Costo Revisión: $250 (Abonable) %0A` +
@@ -271,7 +287,7 @@
                             <IconLayoutDashboard /> Tablero de Control
                         </h2>
                     </div>
-                    
+
                     {jobs.length === 0 ? (
                         <div className="text-center py-10 text-gray-400 bg-gray-50 rounded-lg border-2 border-dashed">
                             <p>No hay trabajos activos en la Base de Datos.</p>
@@ -285,14 +301,15 @@
                                         <span className="bg-black text-yellow-400 text-xs font-bold px-2 py-1 rounded">#{job.folio}</span>
                                         <span className="text-xs text-gray-400">{job.fecha}</span>
                                     </div>
-                                    <h3 className="font-bold text-lg">{job.modelo}</h3>
-                                    <p className="text-sm text-gray-600 mb-1">{job.cliente}</p>
+                                    <h3 className="font-bold text-lg">{job.marca} {job.modelo}</h3>
+                                    <p className="text-xs text-gray-500 mb-1">{job.color}</p>
+                                    <p className="text-sm text-gray-600 mb-1 font-bold">{job.cliente}</p>
                                     <p className="text-xs text-gray-500 mb-3 truncate">{job.falla}</p>
-                                    
+
                                     <div className="mb-4">
                                         <label className="text-xs font-bold text-gray-400 uppercase">Estado:</label>
-                                        <select 
-                                            value={job.status} 
+                                        <select
+                                            value={job.status}
                                             onChange={(e) => updateJobStatus(job.id, e.target.value)}
                                             className={`w-full mt-1 p-2 rounded text-sm font-bold border ${
                                                 job.status === 'Entregado' ? 'bg-green-100 text-green-800 border-green-200' :
@@ -341,7 +358,7 @@
                             <IconLayoutDashboard />
                             <span className="text-[10px] font-bold mt-1">TABLERO</span>
                         </button>
-                        
+
                         <div className="flex gap-2 -mt-12">
                              {activeTab === 'recepcion' && (
                                 <button onClick={saveToBoard} className="bg-blue-600 text-white p-3 rounded-full shadow-lg border-4 border-gray-100 hover:scale-110 transition flex items-center justify-center" title="Guardar en Tablero">
@@ -358,13 +375,13 @@
                     </div>
 
                     <div className={`mx-auto bg-white min-h-screen shadow-xl md:my-8 print:shadow-none print:my-0 ${activeTab === 'tablero' ? 'max-w-4xl bg-transparent shadow-none' : 'max-w-[210mm] p-[10mm]'}`}>
-                        
+
                         {activeTab === 'tablero' && <BoardView />}
 
                         {activeTab === 'recepcion' && (
                             <div className="animate-fade-in">
                                 <PrintHeader title="ORDEN DE SERVICIO" />
-                                
+
                                 <div className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
                                     <h3 className="font-bold text-sm text-gray-400 uppercase mb-3 border-b pb-1">Información del Cliente</h3>
                                     <div className="grid grid-cols-2 gap-4 text-sm">
@@ -377,8 +394,30 @@
                                             <input name="telefono" value={data.telefono} onChange={handleChange} className="input-line" placeholder="55..." />
                                         </div>
                                         <div>
-                                            <label className="text-xs text-gray-500">Modelo / Color</label>
-                                            <input name="modelo" value={data.modelo} onChange={handleChange} className="input-line" placeholder="Ej. iPhone 11 Rojo" />
+                                            <label className="text-xs text-gray-500">Marca</label>
+                                            <select name="marca" value={data.marca} onChange={(e) => { handleChange(e); setData(prev => ({...prev, modelo: ''})); }} className="input-line">
+                                                <option value="">Selecciona Marca</option>
+                                                {Object.keys(modelosPorMarca).map(marca => (
+                                                    <option key={marca} value={marca}>{marca}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-500">Modelo</label>
+                                            {data.marca === 'Otro' ? (
+                                                <input name="modelo" value={data.modelo} onChange={handleChange} className="input-line" placeholder="Ej. OnePlus 9" />
+                                            ) : (
+                                                <select name="modelo" value={data.modelo} onChange={handleChange} className="input-line" disabled={!data.marca}>
+                                                    <option value="">Selecciona Modelo</option>
+                                                    {data.marca && modelosPorMarca[data.marca].map(mod => (
+                                                        <option key={mod} value={mod}>{mod}</option>
+                                                    ))}
+                                                </select>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-500">Color</label>
+                                            <input name="color" value={data.color} onChange={handleChange} className="input-line" placeholder="Ej. Rojo" />
                                         </div>
                                         <div>
                                             <label className="text-xs text-gray-500">IMEI / Serie</label>
@@ -396,7 +435,7 @@
                                         <span className="text-yellow-500 text-lg">⚠</span> Falla Reportada & Estado
                                     </h3>
                                     <textarea name="falla" value={data.falla} onChange={handleChange} rows="3" className="w-full bg-yellow-50 p-3 rounded border border-yellow-200 text-sm" placeholder="¿Qué le falla al equipo?"></textarea>
-                                    
+
                                     <div className="mt-3 grid grid-cols-2 gap-4">
                                         <div className="text-sm">
                                             <label className="text-xs font-bold text-gray-500">Condición Estética (Check-in)</label>
@@ -470,9 +509,9 @@
                         {activeTab === 'diagnostico' && (
                             <div className="animate-fade-in">
                                 <PrintHeader title="DIAGNÓSTICO TÉCNICO" />
-                                
+
                                 <div className="flex justify-between bg-gray-100 p-3 rounded mb-6 text-sm">
-                                    <p><strong>Equipo:</strong> {data.modelo}</p>
+                                    <p><strong>Equipo:</strong> {data.marca} {data.modelo} {data.color}</p>
                                     <p><strong>IMEI:</strong> {data.imei}</p>
                                     <p><strong>Cliente:</strong> {data.cliente}</p>
                                 </div>
